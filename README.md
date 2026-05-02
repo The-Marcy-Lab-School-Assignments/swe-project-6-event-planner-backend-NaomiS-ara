@@ -1,4 +1,4 @@
-# EventPlanner — Final Project
+    # EventPlanner — Final Project
 
 ## Overview
 
@@ -7,6 +7,7 @@ In a professional setting, a backend engineer receives a **spec** — a database
 This project puts you in that position. You'll build the **entire backend** for a working event planning application. The frontend is already complete — it makes fetch requests to specific endpoints and expects specific response shapes. Your job is to implement a server that fulfills the API contract so the frontend works end-to-end.
 
 **What the app does:**
+
 - Users can create accounts, log in, and manage their account (update password, delete)
 - Authenticated users can create, edit, and delete their own events
 - All visitors can browse the public event feed with filters by type and minimum capacity
@@ -14,12 +15,14 @@ This project puts you in that position. You'll build the **entire backend** for 
 - Each user can view their created events and their RSVPed events
 
 **What you're given:**
+
 - A complete frontend (you won't modify this)
 - The database schema (exact tables, columns, and constraints)
 - The API contract (every endpoint, its request format, and its response shape)
 - Two reference applications that use the same patterns you'll need
 
 **What you'll build:**
+
 - A PostgreSQL database with three tables
 - An Express server with models, controllers, and middleware following the MVC pattern
 
@@ -62,6 +65,7 @@ This project puts you in that position. You'll build the **entire backend** for 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v18+)
 - PostgreSQL (running locally)
 
@@ -94,6 +98,7 @@ server/
 ```
 
 **3. Install server dependencies:**
+
 ```sh
 cd server
 npm init -y
@@ -102,6 +107,7 @@ npm install --save-dev nodemon
 ```
 
 **4. Create the database:**
+
 ```sh
 # Mac
 createdb event_planner_db
@@ -119,6 +125,7 @@ sudo -u postgres createdb event_planner_db
 These are the two applications you built during lecture. They use the same architecture, patterns, and libraries that your server will use. **Study them.** Most of your boilerplate (`pool.js`, middleware, `index.js` structure) can be adapted directly from these apps. The real work is in `seed.js`, the models, and the controllers — where you'll need to apply the patterns to this project's specific schema and endpoints.
 
 [https://github.com/The-Marcy-Lab-School/6-13-production-deployment](https://github.com/The-Marcy-Lab-School/6-13-production-deployment) — Your primary reference. A complete MVC server with users and bookmarks. Look at:
+
 - `server/db/` — `pool.js` and `seed.js` (two-table schema with a foreign key)
 - `server/models/` — `userModel.js` (bcrypt, CRUD) and `bookmarkModel.js` (CRUD with a JOIN for usernames)
 - `server/controllers/` — auth flow, ownership checks (comparing URL params to the session), error responses
@@ -126,6 +133,7 @@ These are the two applications you built during lecture. They use the same archi
 - `server/index.js` — how everything is wired together
 
 [https://github.com/The-Marcy-Lab-School/swe-casestudy-6-social-bookmark-manager](https://github.com/The-Marcy-Lab-School/swe-casestudy-6-social-bookmark-manager) — Your reference for the RSVP feature. This app adds a `bookmark_likes` junction table on top of the same bookmark structure. Look at:
+
 - `server/db/seed.js` — three-table schema, the junction table with `UNIQUE` constraint
 - `server/models/bookmarkModel.js` — `LEFT JOIN` + `COUNT` + `GROUP BY` for like counts, `ON CONFLICT DO NOTHING` for idempotent likes
 
@@ -142,11 +150,11 @@ Implement your seed file to create the schema and insert test data. See `6-13`'s
 Your seed file must create these three tables:
 
 **`users`**
-| Column          | Type     | Constraints        |
+| Column | Type | Constraints |
 | --------------- | -------- | ------------------ |
-| `user_id`       | `SERIAL` | `PRIMARY KEY`      |
-| `username`      | `TEXT`   | `UNIQUE, NOT NULL` |
-| `password_hash` | `TEXT`   | `NOT NULL`         |
+| `user_id` | `SERIAL` | `PRIMARY KEY` |
+| `username` | `TEXT` | `UNIQUE, NOT NULL` |
+| `password_hash` | `TEXT` | `NOT NULL` |
 
 **`events`**
 
@@ -213,8 +221,8 @@ Verify your models can query the database by creating a temporary `server/test.j
 
 ```js
 // server/test.js — delete after testing
-require('dotenv').config();
-const eventModel = require('./models/eventModel');
+require("dotenv").config();
+const eventModel = require("./models/eventModel");
 
 const test = async () => {
   console.log(await eventModel.list()); // list all events with username and rsvp_count
@@ -223,7 +231,7 @@ const test = async () => {
 
   // Kill the process (the open pool connections) after running queries
   process.exit();
-}
+};
 test();
 ```
 
@@ -240,6 +248,7 @@ The controllers are where you connect routes to models. The [API Contract](#api-
 ### Phase 3 Success Checks
 
 Start the server:
+
 ```sh
 node index.js
 ```
@@ -285,11 +294,13 @@ Each endpoint below includes a curl command so you can test your API directly fr
 Register a new user and automatically log them in.
 
 **Request body:**
+
 ```json
 { "username": "alice", "password": "password123" }
 ```
 
 **Success `201`:**
+
 ```json
 { "user_id": 1, "username": "alice" }
 ```
@@ -308,13 +319,14 @@ curl -s -X POST http://localhost:8080/api/auth/register \
 
 **`POST /api/auth/login`**
 
-
 **Request body:**
+
 ```json
 { "username": "alice", "password": "password123" }
 ```
 
 **Success `200`:**
+
 ```json
 { "user_id": 1, "username": "alice" }
 ```
@@ -335,11 +347,13 @@ curl -s -X POST http://localhost:8080/api/auth/login \
 Returns the currently logged-in user, or `null` if no session exists.
 
 **Success `200` (logged in):**
+
 ```json
 { "user_id": 1, "username": "alice" }
 ```
 
 **`401` (not logged in):**
+
 ```json
 null
 ```
@@ -353,8 +367,8 @@ curl -s http://localhost:8080/api/auth/me \
 
 **`DELETE /api/auth/logout`**
 
-
 **Success `200`:**
+
 ```json
 { "message": "Logged out." }
 ```
@@ -373,11 +387,13 @@ curl -s -X DELETE http://localhost:8080/api/auth/logout \
 Update the logged-in user's password. **Auth required.** Users may only update their own account.
 
 **Request body:**
+
 ```json
 { "password": "newpassword456" }
 ```
 
 **Success `200`:**
+
 ```json
 { "user_id": 1, "username": "alice" }
 ```
@@ -401,6 +417,7 @@ curl -s -X PATCH http://localhost:8080/api/users/1 \
 Delete the logged-in user's account. **Auth required.** Users may only delete their own account.
 
 **Success `200`:**
+
 ```json
 { "user_id": 1, "username": "alice" }
 ```
@@ -425,6 +442,7 @@ Returns all events sorted by date ascending. Public — no auth required.
 Filtering by event type and minimum capacity is handled in the frontend. Your server should return the full list on every request.
 
 **Success `200`:**
+
 ```json
 [
   {
@@ -455,6 +473,7 @@ curl -s http://localhost:8080/api/events | jq
 Create a new event owned by the logged-in user. **Auth required.**
 
 **Request body:**
+
 ```json
 {
   "title": "Morning Yoga",
@@ -577,9 +596,9 @@ curl -s http://localhost:8080/api/users/1/rsvps | jq
 
 ## AI Usage Documentation
 
-You are **encouraged and expected** to use AI tools (Claude, ChatGPT, Copilot, etc.) as you work through this project. 
+You are **encouraged and expected** to use AI tools (Claude, ChatGPT, Copilot, etc.) as you work through this project.
 
-Inside of the [AI_DOCUMENTATION.md](./AI_DOCUMENTATION.md) file, document **1 specific example** of how you used AI. 
+Inside of the [AI_DOCUMENTATION.md](./AI_DOCUMENTATION.md) file, document **1 specific example** of how you used AI.
 
 Be specific and answer the following questions:
 
@@ -608,6 +627,7 @@ Check out [AI_DOCUMENTATION_EXAMPLE.md](./AI_DOCUMENTATION_EXAMPLE.md) to see th
 ## Grading Checklist (36 points)
 
 ### Database (6 points)
+
 - [ ] `users` table matches the required schema
 - [ ] `events` table matches the required schema, with FK to `users`
 - [ ] `rsvps` junction table matches the required schema, with FKs to both `users` and `events`
@@ -616,6 +636,7 @@ Check out [AI_DOCUMENTATION_EXAMPLE.md](./AI_DOCUMENTATION_EXAMPLE.md) to see th
 - [ ] Database is seeded with at least 3 users and several events across multiple types
 
 ### Authentication (6 points)
+
 - [ ] Passwords are hashed with `bcrypt` — plain-text passwords are never stored
 - [ ] `POST /api/auth/register` creates a user, starts a session, returns `{ user_id, username }`
 - [ ] `POST /api/auth/login` validates credentials, starts a session, returns `{ user_id, username }`
@@ -624,27 +645,32 @@ Check out [AI_DOCUMENTATION_EXAMPLE.md](./AI_DOCUMENTATION_EXAMPLE.md) to see th
 - [ ] The logged-in user's ID is stored in the session cookie
 
 ### User Account Management (3 points)
+
 - [ ] `PATCH /api/users/:user_id` updates the user's password (auth required)
 - [ ] `DELETE /api/users/:user_id` deletes the user's account (auth required)
 - [ ] Both routes return `403` if the requesting user does not own the account
 
 ### Events — Read (2 points)
+
 - [ ] `GET /api/events` returns all events with `username` (via JOIN) and `rsvp_count` (via LEFT JOIN + COUNT)
 - [ ] `GET /api/users/:user_id/events` returns that user's created events
 
 ### Events — Write (4 points)
+
 - [ ] `POST /api/events` creates an event owned by the session user (auth required)
 - [ ] `PATCH /api/events/:event_id` updates the event (auth required, owner only)
 - [ ] `DELETE /api/events/:event_id` deletes the event (auth required, owner only)
 - [ ] Both mutation routes fetch the event first and return `403` if the session user doesn't own it
 
 ### RSVPs (4 points)
+
 - [ ] `POST /api/events/:event_id/rsvps` RSVPs the session user to the event (auth required)
 - [ ] Duplicate RSVPs do not cause a server error (`ON CONFLICT DO NOTHING`)
 - [ ] `DELETE /api/events/:event_id/rsvps` removes the session user's RSVP (auth required)
 - [ ] `GET /api/users/:user_id/rsvps` returns full event objects for all of that user's RSVPs
 
 ### Error Handling (6 points)
+
 - [ ] `400` is returned for missing or invalid required fields
 - [ ] `401` is returned when a protected route is accessed without a valid session
 - [ ] `403` is returned when a user attempts to modify a resource they do not own
@@ -653,10 +679,12 @@ Check out [AI_DOCUMENTATION_EXAMPLE.md](./AI_DOCUMENTATION_EXAMPLE.md) to see th
 - [ ] No unhandled promise rejections crash the server — all async controllers use `try/catch`
 
 ### Code Quality (4 points)
+
 - [ ] Server follows the MVC structure: `controllers/`, `models/`, `middleware/`
 - [ ] All SQL lives in model functions — controllers contain no direct database queries
 - [ ] `checkAuthentication` middleware is used on protected routes (not repeated inline)
 - [ ] Sensitive config (session secret, DB credentials) lives in `.env`, not hardcoded in source
 
 ### AI Usage Documentation (1 points)
+
 - [ ] Provided 1 example of AI usage and addressed all reflection questions.
